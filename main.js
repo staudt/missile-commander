@@ -6,21 +6,19 @@
 	var Scene = com.dgsprb.quick.Scene;
 
 	var gameScene;
-	var casinhas = [];	// use tiles intead?
+	var buildings = [];	// use tiles intead?
 
 	function createExplosion(x, y) {
 		var explosion = new GameObject();
 		explosion.setColor("Red");
 		explosion.setSolid();
 		explosion.setPosition(x, y);
-		explosion.max_size = 60;
+		explosion.setExpiration(70);
 		explosion.setDelegate({
 			"update": function() {
 				var center = explosion.getCenter();
 				explosion.increase(1, 1);
 				explosion.setCenter(center);
-				if (explosion.getWidth()>explosion.max_size)
-					explosion.expire();
 			}
 		});
 		gameScene.add(explosion);
@@ -33,16 +31,20 @@
 		meteor.setSolid();
 		meteor.addTag("meteor");
 		meteor.setX(Quick.random(Quick.getCanvasWidth())+1);
-		var target = casinhas[Quick.random(casinhas.length-1)].getCenter();
+		var target = buildings[Quick.random(buildings.length-1)].getCenter();
 		meteor.setSpeedToPoint(Quick.random(2)+1, target);
 		meteor.setExpiration(1000);
 		meteor.setDelegate({
 			"onCollision": function(gameObject) {
-				if (gameObject.hasTag("casinha")) {
+				if (gameObject.hasTag("building")) {
 					gameObject.expire();
+					meteor.expire();
 					createExplosion(gameObject.getX(), gameObject.getY());
+				} else if (gameObject.hasTag("meteor")) {
+					meteor.bounceX();
+				} else {
+					meteor.expire();
 				}
-				meteor.expire();
 			},
 			"update": function() {
 				if (Quick.random(6)==0) {
@@ -73,14 +75,14 @@
 		gameScene.add(background);
 
 		for (var i=0; i<7; i++) {
-			var casinha  = new GameObject();
-			casinha.setSize(20);
-			casinha.setColor(i==3 ? "Orange" : "Green");
-			casinha.setSolid();
-			casinha.addTag("casinha");
-			casinha.setPosition((Quick.getCanvasWidth()/8)*(i+1), Quick.getCanvasHeight()-20);
-			gameScene.add(casinha);
-			casinhas.push(casinha);
+			var building  = new GameObject();
+			building.setSize(20);
+			building.setColor(i==3 ? "Orange" : "Green");
+			building.setSolid();
+			building.addTag("building");
+			building.setPosition((Quick.getCanvasWidth()/8)*(i+1), Quick.getCanvasHeight()-20);
+			gameScene.add(building);
+			buildings.push(building);
 		}
 		
 		var pointer = Quick.getPointer() 
