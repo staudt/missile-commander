@@ -47,6 +47,7 @@
 		var explosion = new GameObject();
 		explosion.setColor("Red");
 		explosion.setSolid();
+		explosion.addTag("explosion");
 		explosion.setPosition(x, y);
 		explosion.setExpiration(70);
 		explosion.setDelegate({
@@ -75,6 +76,8 @@
 					gameObject.expire();
 					meteor.expire();
 					createExplosion(gameObject.getX(), gameObject.getY());
+				} else if (gameObject.hasTag("explosion")) {
+					meteor.expire();
 				} else if (gameObject.hasTag("meteor")) {
 					meteor.bounceX();
 				}
