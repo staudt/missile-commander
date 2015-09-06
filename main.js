@@ -18,7 +18,7 @@
 			"update": function() {
 				var center = explosion.getCenter();
 				explosion.increase(1, 1);
-				explosion.setCenter(center);
+				explosion.setCenter(center.getX(), center.getY());
 			}
 		});
 		gameScene.add(explosion);
