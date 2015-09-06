@@ -8,6 +8,41 @@
 	var gameScene;
 	var buildings = [];	// use tiles intead?
 
+	function fireMissile(targetX, targetY) {
+		var target = new GameObject();
+		target.setPosition(targetX, targetY);
+		target.setColor("White");
+		target.setSize(3);
+		target.setExpiration(60);
+		gameScene.add(target);
+		var missile = new GameObject();
+		missile.setPosition(Quick.getCanvasCenterX(), Quick.getCanvasHeight()-20);
+		missile.setColor("Red");
+		missile.targetX = targetX;
+		missile.targetY = targetY;
+		missile.setSolid();
+		missile.setSize(4);
+		missile.setExpiration(60);
+		missile.setSpeedToPoint(10, target);
+		missile.setDelegate({
+			"update": function() {
+				if (missile.getY()<=missile.targetY) {
+					missile.expire();
+					target.expire();
+					createExplosion(missile.targetX, missile.targetY);
+				}
+			},
+			"onCollision": function(gameObject) {
+				if (gameObject.hasTag("meteor")) {
+					gameObject.expire();
+					missile.expire();
+					createExplosion(missile.getX(), missile.getY());
+				}
+			}
+		});
+		gameScene.add(missile);
+	}
+
 	function createExplosion(x, y) {
 		var explosion = new GameObject();
 		explosion.setColor("Red");
@@ -42,8 +77,6 @@
 					createExplosion(gameObject.getX(), gameObject.getY());
 				} else if (gameObject.hasTag("meteor")) {
 					meteor.bounceX();
-				} else {
-					meteor.expire();
 				}
 			},
 			"update": function() {
@@ -58,6 +91,9 @@
 				}
 				if (meteor.getY() > Quick.getCanvasHeight())
 					meteor.expire();
+			},
+			"offBoundary": function() {
+				meteor.expire();
 			}
 		});
 		gameScene.add(meteor);
@@ -95,7 +131,8 @@
 				var position = pointer.getPosition();
 				cursor.setPosition(position.getX(), position.getY());
 				if (pointer.getPush())
-					createExplosion(position.getX(), position.getY());
+					//createExplosion(position.getX(), position.getY());
+					fireMissile(position.getX(), position.getY());
 				if (Quick.random(30)==0)
 					createMeteor()
 			}
